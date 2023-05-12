@@ -26,7 +26,6 @@
 
 set.seed(100)
 numProbes<-100 # number of sites included in model
-intervals<-seq(0.1,0.9,0.1) # prop of each cell type for test data
 probeSelect<- "any" 
 
 # args<-commandArgs(trailingOnly = TRUE)
@@ -47,9 +46,9 @@ library(dplyr)
 # devtools::install_github("ds420/CETYGO")
 library(CETYGO)
 # devtools::install_github("immunomethylomics/IDOL")
-library(IDOL)
-library(doParallel)
-nworkers <- 2 ## if pushed too high causes OOM errors
+# library(IDOL)
+# library(doParallel)
+# nworkers <- 2 ## if pushed too high causes OOM errors
 
 
 #----------------------------------------------------------------------#
@@ -81,32 +80,16 @@ norm.all<-norm.all[!probeAnnot$CHR %in% c("X", "Y"),]
 # SELECT PROBES FOR DECONVOLUTION
 #----------------------------------------------------------------------#
 
-refPanels<-read.csv(refPanelPath, stringsAsFactors = FALSE)
-
 indexCells <- split(1:nrow(pheno.all), pheno.all$CellType)
 exclude<-pheno.all$Basename[unlist(lapply(indexCells, sample, size = 1))]
 names(exclude)<-sort(unique(pheno.all$CellType))
 
-brainCoefIDOL<-list()
-brainCoefANOVA<-list()
-for(i in 1:nrow(refPanels)){
-  print(paste0("Model number ", i))
-	cellTypes <- unlist(strsplit(refPanels[i,2], ";"))
-	cellTypes<-sort(cellTypes)
-	pheno.sub<-pheno.all[pheno.all$CellType %in% cellTypes,]
-	pheno.sub$CellType<-factor(pheno.sub$CellType)
-	norm.sub<-norm.all[,pheno.sub$Basename]
-	cellInd<-pheno.sub$CellType
-	
-	# generate test "bulk profiles"
-	matrixSimProp<-expand.grid(rep(list(intervals), length(cellTypes)))
-	matrixSimProp<-matrixSimProp[which(signif(rowSums(matrixSimProp),3) == 1),]
-	colnames(matrixSimProp)<-cellTypes
-	hetBetas <-createBulkProfiles(norm.sub[,exclude[cellTypes]], matrixSimProp) 
-	
-	## use ANOVA
-	compData <- pickCompProbesMatrix(rawbetas=norm.sub, cellInd=cellInd, cellTypes = cellTypes, numProbes = numProbes/2, probeSelect = probeSelect)
-	brainCoefANOVA[[i]]<-compData$coefEsts
-	save(brainCoefANOVA, file = paste(tools::file_path_sans_ext(normData), "CoefBrainModels.rdata", sep = "_"))
-}
+cellTypes <- unique(pheno.all$CellType)
+cellInd<-pheno.all$CellType
+
+## use ANOVA
+compData <- pickCompProbesMatrix(rawbetas=norm.all, cellInd=cellInd, cellTypes = cellTypes, numProbes = numProbes/2, probeSelect = probeSelect)
+brainCoefANOVA<-compData$coefEsts
+save(brainCoefANOVA, file = paste(tools::file_path_sans_ext(normData), "CoefBrainModel.rdata", sep = "_"))
+
 
