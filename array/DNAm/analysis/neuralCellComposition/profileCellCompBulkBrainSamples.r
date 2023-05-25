@@ -25,15 +25,21 @@
 # DEFINE PARAMETERS
 #----------------------------------------------------------------------#
 
-# args<-commandArgs(trailingOnly = TRUE)
-# bulkPath <- args[1]
-# modelPath <- args[2]
-# plotPath <- args[3]
+args = commandArgs(trailingOnly=TRUE)
+if (length(args)==0){
+  setwd("~/OneDrive - University of Exeter/Documents/methylation/Setd1a_array/")
+  args[1]<-"Setd1a_mouseArray_FilteredNormalised_Betas.rdat"
+  args[2]<-"../RawData_Mouse_DNAm/MouseArray_CellDeconv_FilteredNormalised_Betas_CoefBrainModel.rdata"
+  args[3]<-"."
+} 
+bulkPath <- args[1]
+modelPath <- args[2]
+plotPath <- args[3]
 
-setwd("~/OneDrive - University of Exeter/Documents/methylation/Setd1a_array/")
-bulkPath <- "Setd1a_mouseArray_FilteredNormalised_Betas.rdat"
-modelPath <- "../RawData_Mouse_DNAm/MouseArray_CellDeconv_FilteredNormalised_Betas_CoefBrainModel.rdata"
-plotPath <- "."
+# setwd("~/OneDrive - University of Exeter/Documents/methylation/Setd1a_array/")
+# bulkPath <- "Setd1a_mouseArray_FilteredNormalised_Betas.rdat"
+# modelPath <- "../RawData_Mouse_DNAm/MouseArray_CellDeconv_FilteredNormalised_Betas_CoefBrainModel.rdata"
+# plotPath <- "."
 
 
 #----------------------------------------------------------------------#

@@ -28,15 +28,21 @@ set.seed(100)
 numProbes<-100 # number of sites included in model
 probeSelect<- "any" 
 
-# args<-commandArgs(trailingOnly = TRUE)
-# normData<-args[1]
-# refPath<-args[2]
-# refPanelPath<-args[3]
+args = commandArgs(trailingOnly=TRUE)
+if (length(args)==0){
+  setwd("~/OneDrive - University of Exeter/Documents/methylation/RawData_Mouse_DNAm/")
+  args[1]<-"MouseArray_CellDeconv_FilteredNormalised_Betas.rdat"
+  args[2]<-"../MouseMethylation-12v1-0_A2.csv"
+  args[3]<-""
+} 
+normData<-args[1]
+refPath<-args[2]
+refPanelPath<-args[3]
 
-setwd("~/OneDrive - University of Exeter/Documents/methylation/RawData_Mouse_DNAm/")
-normData <- "MouseArray_CellDeconv_FilteredNormalised_Betas.rdat"
-refPath <- "../MouseMethylation-12v1-0_A2.csv"
-refPanelPath <- ""
+# setwd("~/OneDrive - University of Exeter/Documents/methylation/RawData_Mouse_DNAm/")
+# normData <- "MouseArray_CellDeconv_FilteredNormalised_Betas.rdat"
+# refPath <- "../MouseMethylation-12v1-0_A2.csv"
+# refPanelPath <- ""
 
 
 #----------------------------------------------------------------------#
@@ -60,13 +66,13 @@ pheno.all <- sample_sheet
 norm.all <- normbetas
 rm(sample_sheet, normbetas)
 
-probeAnnot <- read.csv("../MouseMethylation-12v1-0_A2.csv", skip = 7) %>%
+probeAnnot <- read.csv(refPath, skip = 7) %>%
   mutate(probeID = paste(Name, AddressA_ID, sep = "_")) %>%
   filter(CHR != "") %>%
   dplyr::select(probeID, Name, CHR, MAPINFO) 
 rownames(probeAnnot) <- probeAnnot$probeID
 
-colnames(pheno.all)[colnames(pheno.all) == "Nuclei_Fraction"] <- "CellType" # need to rename for use with IDOL functions
+colnames(pheno.all)[colnames(pheno.all) == "Nuclei_Fraction"] <- "CellType" 
 pheno.all$CellType[pheno.all$CellType != "NeuN"] <- "NonNeuronal"
 pheno.all$CellType<-factor(pheno.all$CellType)
 
